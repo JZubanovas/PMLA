@@ -52,21 +52,37 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 
 
 
-<p>Installing the necessary packages</p>
-<pre class="r"><code>library(caret)
-library(rattle)
-library(randomForest)</code></pre>
-<p>Reading the CSV files and clensing the data</p>
-<pre class="r"><code>training &lt;- read.csv(&quot;pml-training.csv&quot;, na.strings=c(&quot;NA&quot;,&quot;#DIV/0!&quot;,&quot;&quot;))
-testing &lt;- read.csv(&quot;pml-testing.csv&quot;, na.strings=c(&quot;NA&quot;,&quot;#DIV/0!&quot;,&quot;&quot;))</code></pre>
-<p>Splitting the <code>training</code> data set in to training and test sets</p>
-<pre class="r"><code>set.seed(456)
+<pre class="r"><code>##Installing the necessary packages
+
+setwd(&quot;~/RWD&quot;)
+library(caret)</code></pre>
+<pre><code>## Loading required package: lattice
+## Loading required package: ggplot2</code></pre>
+<pre class="r"><code>library(rattle)</code></pre>
+<pre><code>## Rattle: A free graphical interface for data mining with R.
+## Version 3.3.0 Copyright (c) 2006-2014 Togaware Pty Ltd.
+## Type 'rattle()' to shake, rattle, and roll your data.</code></pre>
+<pre class="r"><code>library(randomForest)</code></pre>
+<pre><code>## randomForest 4.6-10
+## Type rfNews() to see new features/changes/bug fixes.</code></pre>
+<pre class="r"><code>##Reading the CSV files and clensing the data
+ 
+training &lt;- read.csv(&quot;pml-training.csv&quot;, na.strings=c(&quot;NA&quot;,&quot;#DIV/0!&quot;,&quot;&quot;))
+testing &lt;- read.csv(&quot;pml-testing.csv&quot;, na.strings=c(&quot;NA&quot;,&quot;#DIV/0!&quot;,&quot;&quot;))
+ 
+##Splitting the  training  data set in to training and test sets
+ 
+set.seed(456)
 inTrain &lt;- createDataPartition(y=training$classe, p=0.6, list=FALSE)
-myTraining &lt;- training[inTrain, ]; myTesting &lt;- training[-inTrain, ]</code></pre>
-<p>Cleaning NearZeroVariance Variables</p>
-<pre class="r"><code>myDataNZV &lt;- nearZeroVar(myTraining, saveMetrics=TRUE)</code></pre>
-<p>Creating another subset without NZV variables</p>
-<pre class="r"><code>myNZVvars &lt;- names(myTraining) %in% c(&quot;new_window&quot;, &quot;kurtosis_roll_belt&quot;, &quot;kurtosis_picth_belt&quot;,
+myTraining &lt;- training[inTrain, ]; myTesting &lt;- training[-inTrain, ]
+ 
+##Cleaning NearZeroVariance Variables
+ 
+myDataNZV &lt;- nearZeroVar(myTraining, saveMetrics=TRUE)
+ 
+##Creating another subset without NZV variables
+ 
+myNZVvars &lt;- names(myTraining) %in% c(&quot;new_window&quot;, &quot;kurtosis_roll_belt&quot;, &quot;kurtosis_picth_belt&quot;,
 &quot;kurtosis_yaw_belt&quot;, &quot;skewness_roll_belt&quot;, &quot;skewness_roll_belt.1&quot;, &quot;skewness_yaw_belt&quot;,
 &quot;max_yaw_belt&quot;, &quot;min_yaw_belt&quot;, &quot;amplitude_yaw_belt&quot;, &quot;avg_roll_arm&quot;, &quot;stddev_roll_arm&quot;,
 &quot;var_roll_arm&quot;, &quot;avg_pitch_arm&quot;, &quot;stddev_pitch_arm&quot;, &quot;var_pitch_arm&quot;, &quot;avg_yaw_arm&quot;,
@@ -82,11 +98,16 @@ myTraining &lt;- training[inTrain, ]; myTesting &lt;- training[-inTrain, ]</code
 &quot;avg_pitch_forearm&quot;, &quot;stddev_pitch_forearm&quot;, &quot;var_pitch_forearm&quot;, &quot;avg_yaw_forearm&quot;,
 &quot;stddev_yaw_forearm&quot;, &quot;var_yaw_forearm&quot;)
 
-myTraining &lt;- myTraining[!myNZVvars]</code></pre>
-<p>Excluding the first column of the data set, which contains the ID number</p>
-<pre class="r"><code>myTraining &lt;- myTraining[c(-1)]</code></pre>
-<p>The training set still contains a lot of columns with NA values. We will exlude columns with more that 60% data as NA</p>
-<pre class="r"><code>trainingV3 &lt;- myTraining
+myTraining &lt;- myTraining[!myNZVvars]
+ 
+##Excluding the first column of the data set, which contains the ID number
+ 
+myTraining &lt;- myTraining[c(-1)]
+ 
+
+##The training set still contains a lot of columns with NA values. We will exlude columns with more that 60% data as NA
+ 
+trainingV3 &lt;- myTraining
 for(i in 1:length(myTraining)) {
         if( sum( is.na( myTraining[, i] ) ) /nrow(myTraining) &gt;= .6 ) {
         for(j in 1:length(trainingV3)) {
@@ -95,23 +116,110 @@ for(i in 1:length(myTraining)) {
             }   
         } 
     }
-}</code></pre>
-<p>Overwriting the initial object</p>
-<pre class="r"><code>myTraining &lt;- trainingV3
-rm(trainingV3)</code></pre>
-<p>Now repeat the same procedure for <code>myTesting</code> and <code>testind</code> sets</p>
-<pre class="r"><code>clean1 &lt;- colnames(myTraining)
+}
+ 
+##Overwriting the initial object
+ 
+myTraining &lt;- trainingV3
+rm(trainingV3)
+ 
+##Now repeat the same procedure for  myTesting  and  testind  sets
+ 
+clean1 &lt;- colnames(myTraining)
 clean2 &lt;- colnames(myTraining[, -58]) #already with classe column removed
 myTesting &lt;- myTesting[clean1]
-testing &lt;- testing[clean2]</code></pre>
-<p>Applying the randonm forest technique on the training set</p>
-<pre class="r"><code>set.seed(470)
-modFitB1 &lt;- randomForest(classe ~. , data=myTraining)
+testing &lt;- testing[clean2]
+ 
+##Applying the randonm forest technique on the training set
+ 
+set.seed(470)
+modFitB1 &lt;- randomForest(classe ~. , data=myTraining, importance=TRUE, keep.forest=TRUE)
+print(modFitB1)</code></pre>
+<pre><code>## 
+## Call:
+##  randomForest(formula = classe ~ ., data = myTraining, importance = TRUE,      keep.forest = TRUE) 
+##                Type of random forest: classification
+##                      Number of trees: 500
+## No. of variables tried at each split: 7
+## 
+##         OOB estimate of  error rate: 0.12%
+## Confusion matrix:
+##      A    B    C    D    E  class.error
+## A 3348    0    0    0    0 0.0000000000
+## B    3 2276    0    0    0 0.0013163668
+## C    0    4 2049    1    0 0.0024342746
+## D    0    0    3 1926    1 0.0020725389
+## E    0    0    0    2 2163 0.0009237875</code></pre>
+<pre class="r"><code>##There is no need for cross-validation as it is is represented by the OOB error estimate
+ 
 predictionsB1 &lt;- predict(modFitB1, myTraining, type = &quot;class&quot;)
+ 
+
 confusionMatrix(predictionsB1, myTraining$classe)</code></pre>
-<p>The CI for the Accuracy is high, we will apply the same predictors to the test set, expecting at least 0.9997 accuracy with a 95% confidence</p>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 3348    0    0    0    0
+##          B    0 2279    0    0    0
+##          C    0    0 2054    0    0
+##          D    0    0    0 1930    0
+##          E    0    0    0    0 2165
+## 
+## Overall Statistics
+##                                      
+##                Accuracy : 1          
+##                  95% CI : (0.9997, 1)
+##     No Information Rate : 0.2843     
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16  
+##                                      
+##                   Kappa : 1          
+##  Mcnemar's Test P-Value : NA         
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity            1.0000   1.0000   1.0000   1.0000   1.0000
+## Specificity            1.0000   1.0000   1.0000   1.0000   1.0000
+## Pos Pred Value         1.0000   1.0000   1.0000   1.0000   1.0000
+## Neg Pred Value         1.0000   1.0000   1.0000   1.0000   1.0000
+## Prevalence             0.2843   0.1935   0.1744   0.1639   0.1838
+## Detection Rate         0.2843   0.1935   0.1744   0.1639   0.1838
+## Detection Prevalence   0.2843   0.1935   0.1744   0.1639   0.1838
+## Balanced Accuracy      1.0000   1.0000   1.0000   1.0000   1.0000</code></pre>
 <pre class="r"><code>predictionsB1 &lt;- predict(modFitB1, myTesting, type = &quot;class&quot;)
 confusionMatrix(predictionsB1, myTesting$classe)</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 2232    1    0    0    0
+##          B    0 1517    2    0    0
+##          C    0    0 1366    3    0
+##          D    0    0    0 1282    1
+##          E    0    0    0    1 1441
+## 
+## Overall Statistics
+##                                          
+##                Accuracy : 0.999          
+##                  95% CI : (0.998, 0.9996)
+##     No Information Rate : 0.2845         
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16      
+##                                          
+##                   Kappa : 0.9987         
+##  Mcnemar's Test P-Value : NA             
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity            1.0000   0.9993   0.9985   0.9969   0.9993
+## Specificity            0.9998   0.9997   0.9995   0.9998   0.9998
+## Pos Pred Value         0.9996   0.9987   0.9978   0.9992   0.9993
+## Neg Pred Value         1.0000   0.9998   0.9997   0.9994   0.9998
+## Prevalence             0.2845   0.1935   0.1744   0.1639   0.1838
+## Detection Rate         0.2845   0.1933   0.1741   0.1634   0.1837
+## Detection Prevalence   0.2846   0.1936   0.1745   0.1635   0.1838
+## Balanced Accuracy      0.9999   0.9995   0.9990   0.9984   0.9996</code></pre>
 
 
 </div>
