@@ -1,7 +1,6 @@
 #Practical Machine Learning Assignment
 
  Installing the necessary packages
-Error: unexpected symbol in "Installing the"
  
  ```r
 
@@ -11,7 +10,6 @@ Error: unexpected symbol in "Installing the"
  ```
 
  Reading the CSV files and clensing the data
-Error: unexpected symbol in "Reading the"
  ```r
 
  training <- read.csv("pml-training.csv", na.strings=c("NA","#DIV/0!",""))
@@ -19,7 +17,6 @@ Error: unexpected symbol in "Reading the"
  ```
 
  Splitting the ```training``` data set in to training and test sets
-Error: unexpected symbol in "Splitting the"
  ```r
 
  set.seed(456)
@@ -28,14 +25,12 @@ Error: unexpected symbol in "Splitting the"
  ```
 
  Cleaning NearZeroVariance Variables
-Error: unexpected symbol in "Cleaning NearZeroVariance"
  ```r
 
  myDataNZV <- nearZeroVar(myTraining, saveMetrics=TRUE)
  ```
 
  Creating another subset without NZV variables
-Error: unexpected symbol in "Creating another"
  ```r
 
  myNZVvars <- names(myTraining) %in% c("new_window", "kurtosis_roll_belt", "kurtosis_picth_belt",
@@ -58,7 +53,6 @@ Error: unexpected symbol in "Creating another"
  ```
 
  Excluding the first column of the data set, which contains the ID number
-Error: unexpected symbol in "Excluding the"
  ```r
 
  myTraining <- myTraining[c(-1)]
@@ -66,7 +60,6 @@ Error: unexpected symbol in "Excluding the"
 
  
  The training set still contains a lot of columns with NA values. We will exlude columns with more that 60% data as NA
-Error: unexpected symbol in "The training"
  ```r
 
  trainingV3 <- myTraining
@@ -82,7 +75,6 @@ Error: unexpected symbol in "The training"
  ```
 
  Overwriting the initial object
-Error: unexpected symbol in "Overwriting the"
  ```r
 
  myTraining <- trainingV3
@@ -90,7 +82,6 @@ Error: unexpected symbol in "Overwriting the"
  ```
 
  Now repeat the same procedure for ```myTesting``` and ```testind``` sets
-Error: unexpected 'repeat' in "Now repeat"
  ```r
 
  clean1 <- colnames(myTraining)
@@ -100,7 +91,6 @@ Error: unexpected 'repeat' in "Now repeat"
  ```
 
  Applying the randonm forest technique on the training set
-Error: unexpected symbol in "Applying the"
  ```r
 
  set.seed(470)
@@ -141,7 +131,6 @@ Balanced Accuracy      1.0000   1.0000   1.0000   1.0000   1.0000
  ```
 
  The CI for the Accuracy is high, we will apply the same predictors to the test set, expecting at least 0.9997 accuracy with a 95% confidence
-Error: unexpected symbol in "The CI"
  ```r
 
  predictionsB1 <- predict(modFitB1, myTesting, type = "class")
