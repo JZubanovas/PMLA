@@ -17,15 +17,15 @@ testing <- read.csv("pml-testing.csv", na.strings=c("NA","#DIV/0!",""))
  
 set.seed(456)
 inTrain <- createDataPartition(y=training$classe, p=0.6, list=FALSE)
-myTraining <- training[inTrain, ]; myTesting <- training[-inTrain, ]
+Training <- training[inTrain, ]; Testing <- training[-inTrain, ]
  
 ##Cleaning NearZeroVariance Variables
  
-myDataNZV <- nearZeroVar(myTraining, saveMetrics=TRUE)
+DataNZV <- nearZeroVar(Training, saveMetrics=TRUE)
  
 ##Creating another subset without NZV variables
  
-myNZVvars <- names(myTraining) %in% c("new_window", "kurtosis_roll_belt", "kurtosis_picth_belt",
+NZVvars <- names(Training) %in% c("new_window", "kurtosis_roll_belt", "kurtosis_picth_belt",
 "kurtosis_yaw_belt", "skewness_roll_belt", "skewness_roll_belt.1", "skewness_yaw_belt",
 "max_yaw_belt", "min_yaw_belt", "amplitude_yaw_belt", "avg_roll_arm", "stddev_roll_arm",
 "var_roll_arm", "avg_pitch_arm", "stddev_pitch_arm", "var_pitch_arm", "avg_yaw_arm",
@@ -41,21 +41,21 @@ myNZVvars <- names(myTraining) %in% c("new_window", "kurtosis_roll_belt", "kurto
 "avg_pitch_forearm", "stddev_pitch_forearm", "var_pitch_forearm", "avg_yaw_forearm",
 "stddev_yaw_forearm", "var_yaw_forearm")
 
-myTraining <- myTraining[!myNZVvars]
+Training <- Training[!NZVvars]
  
 ##Excluding the first column of the data set, which contains the ID number
  
-myTraining <- myTraining[c(-1)]
+Training <- Training[c(-1)]
  
 
 ##The training set still contains a lot of columns with NA values. We will exlude columns with more that 60% data as NA
  
-trainingV3 <- myTraining
-for(i in 1:length(myTraining)) {
-        if( sum( is.na( myTraining[, i] ) ) /nrow(myTraining) >= .6 ) {
-        for(j in 1:length(trainingV3)) {
-            if( length( grep(names(myTraining[i]), names(trainingV3)[j]) ) ==1)  { #if the columns are the same:
-                trainingV3 <- trainingV3[ , -j] #Remove that column
+TrainingTemp <- Training
+for(i in 1:length(Training)) {
+        if( sum( is.na( Training[, i] ) ) /nrow(Training) >= .6 ) {
+        for(j in 1:length(TrainingTemp)) {
+            if( length( grep(names(Training[i]), names(TrainingTemp)[j]) ) ==1)  { #if the columns are the same:
+                TrainingTemp <- TrainingTemp[ , -j] #Remove that column
             }   
         } 
     }
@@ -63,31 +63,31 @@ for(i in 1:length(myTraining)) {
  
 ##Overwriting the initial object
  
-myTraining <- trainingV3
-rm(trainingV3)
+Training <- TrainingTemp
+rm(TrainingTemp)
  
-##Now repeat the same procedure for  myTesting  and  testind  sets
+##Now repeat the same procedure for  Testing  and  testind  sets
  
-clean1 <- colnames(myTraining)
-clean2 <- colnames(myTraining[, -58]) #already with classe column removed
-myTesting <- myTesting[clean1]
+clean1 <- colnames(Training)
+clean2 <- colnames(Training[, -58]) #already with classe column removed
+Testing <- Testing[clean1]
 testing <- testing[clean2]
  
 ##Applying the randonm forest technique on the training set
  
 set.seed(470)
-modFitB1 <- randomForest(classe ~. , data=myTraining, importance=TRUE, keep.forest=TRUE)
-print(modFitB1)
+modFit <- randomForest(classe ~. , data=Training, importance=TRUE, keep.forest=TRUE)
+print(modFit)
 
 ##There is no need for cross-validation as it is is represented by the OOB error estimate
  
-predictionsB1 <- predict(modFitB1, myTraining, type = "class")
+predictionsV1 <- predict(modFit, Training, type = "class")
  
 
-confusionMatrix(predictionsB1, myTraining$classe)
+confusionMatrix(predictionsV1, Training$classe)
  
 
-predictionsB1 <- predict(modFitB1, myTesting, type = "class")
-confusionMatrix(predictionsB1, myTesting$classe)
+predictionsV2 <- predict(modFit, Testing, type = "class")
+confusionMatrix(predictionsV2, Testing$classe)
 ```
  
