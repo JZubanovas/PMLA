@@ -129,8 +129,8 @@ Detection Rate         0.2843   0.1935   0.1744   0.1639   0.1838
 Detection Prevalence   0.2843   0.1935   0.1744   0.1639   0.1838
 Balanced Accuracy      1.0000   1.0000   1.0000   1.0000   1.0000
  ```
+Applying the same technique to the testing set
 
- The CI for the Accuracy is high, we will apply the same predictors to the test set, expecting at least 0.9997 accuracy with a 95% confidence
  ```r
 
  predictionsB1 <- predict(modFitB1, myTesting, type = "class")
